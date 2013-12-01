@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Inventory;
+using System.IO;
 
 namespace TextBasedAdventureGame
 {
@@ -26,12 +27,91 @@ namespace TextBasedAdventureGame
     public class Game
     {
         bool m_Playing = true;
+        string path = @"C:\C#Temp\";
         Location m_Location = new Location();
+        List<LocationTesting> locList = new List<LocationTesting>();
+
+        string currentLocation = string.Empty;
 
         public void reset()
         {
             m_Playing = true;
             m_Location.reset();
+
+            foreach (string file in Directory.GetFiles(path, "*.txt"))
+            {
+                float x = 0;
+                string readText = File.ReadAllText(file);
+                StringBuilder stringBuilder = new StringBuilder();
+
+                string description = string.Empty;
+                List<string> locGoesTo = new List<string>();
+
+                string locName = string.Empty;
+
+                bool nameGet = false;
+                bool descGet = false;
+                bool goToGet = false;
+
+                #region "Building the location list"
+                foreach (char c in readText)
+                {
+                    if (c == '|')
+                    {
+                        x += 1;
+
+                        if (nameGet == false)
+                        {
+                            nameGet = true;
+                            locName = stringBuilder.ToString();
+                            stringBuilder.Clear();
+                            continue;
+                        }
+
+                        else if (descGet == false)
+                        {
+                            descGet = true;
+                            description = stringBuilder.ToString();
+                            stringBuilder.Clear();
+                            continue;
+                        }
+
+                        else if (goToGet == false)
+                        {
+                            goToGet = true;
+                            locGoesTo.Add(stringBuilder.ToString());
+                            stringBuilder.Clear();
+                            continue;
+                        }
+
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
+                    else if (nameGet == false)
+                    {
+                        stringBuilder.Append(c);
+                        continue;
+                    }
+
+                    else if (descGet == false)
+                    {
+                        stringBuilder.Append(c);
+                        continue;
+                    }
+
+                    else
+                    {
+                        stringBuilder.Append(c);
+                    }
+                }
+                #endregion
+
+                LocationTesting locFile = new LocationTesting(locName, locGoesTo, description);
+                locList.Add(locFile);
+            }
         }
 
         private void setPlaying(bool playing)
@@ -42,6 +122,32 @@ namespace TextBasedAdventureGame
         public bool getPlaying()
         {
             return m_Playing;
+        }
+
+        private void newLocation(string locName)
+        {
+            bool goToWriting = true;
+            bool descWriting = true;
+            string description = string.Empty;
+            List<string> locGoesTo = new List<string>();
+
+            while(goToWriting == true)
+            {
+                Console.WriteLine("Where does this location go?\n");
+                locGoesTo.Add(Console.ReadLine());
+                Console.WriteLine("Is that all?");
+                if(Console.ReadLine().ToUpper() == "YES") goToWriting = false;
+            }
+                
+            while(descWriting == true)
+            {
+                Console.WriteLine("Please describe the location:\n");
+                description += Console.ReadLine();
+                Console.WriteLine("Is that all?");
+                if(Console.ReadLine().ToUpper() == "YES") descWriting = false;
+            }
+
+            LocationTesting locationClass = new LocationTesting(locName, locGoesTo, description);
         }
 
         public void checkIfValid(string toCheck)
@@ -56,7 +162,42 @@ namespace TextBasedAdventureGame
                 reset();
             }
 
-            m_Location.whereTo(toCheck);
+            if (toCheck == "LOCTEST")
+            {
+                List<string> test = new List<string>();
+                string temp = string.Empty;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    test.Add("Location" + i.ToString());
+                }
+
+                for (int i = 0; i < 99; i++)
+                {
+                    temp += i.ToString();
+                }
+
+                LocationTesting locTest = new LocationTesting("FIELDTEST", test, temp);
+                locList.Add(locTest);
+            }
+
+            if (toCheck == "FIELDTEST")
+            {
+                foreach (LocationTesting location in locList)
+                {
+                    string name = location.getLocation();
+
+                    if (name == toCheck)
+                    {
+                        location.LocationReading();
+                        return;
+                    }
+                }
+
+                newLocation(toCheck);
+
+                m_Location.whereTo(toCheck);
+            }
         }
 
         public void StartGame()
@@ -644,6 +785,53 @@ namespace TextBasedAdventureGame
             System.Threading.Thread.Sleep(3000);
             Console.Clear();
             reset();
+        }
+    }
+
+    public class LocationTesting
+    {
+        string path = "C:\\C#Temp\\";
+        List<string> m_GoTo = new List<string>();
+        string m_Location = string.Empty;
+        string m_Description = string.Empty;
+
+        public string getLocation()
+        {
+            return m_Location;
+        }
+
+        public LocationTesting(string location, List<string> canGoTo, string description)
+        {
+            m_Location = location;
+            m_GoTo = canGoTo;
+            m_Description = description;
+            Save();
+        }
+
+        private void Save()
+        {
+            string filePath = path + m_Location + ".txt";
+
+            if (!File.Exists(filePath))
+            {
+                // Create a file to write to. 
+                string toWrite = string.Join(",", m_GoTo);
+                string createText = m_Location + "|" + m_Description + "|" + toWrite + "|";
+                File.WriteAllText(filePath, createText);
+            }
+
+            else
+            {
+                Console.WriteLine("This location already exists");
+            }
+        }
+
+        public void LocationReading()
+        {
+            string goTo = string.Join("\n\t", m_GoTo);
+            Console.WriteLine("The location is: " + m_Location);
+            Console.WriteLine("\nYou can go to: " + goTo);
+            Console.WriteLine("\nThe location looks: " + m_Description);
         }
     }
 }
