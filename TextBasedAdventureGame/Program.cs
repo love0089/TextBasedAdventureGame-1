@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Inventory;
 
 namespace TextBasedAdventureGame
 {
@@ -13,11 +14,11 @@ namespace TextBasedAdventureGame
             Game theGame = new Game();
             theGame.reset();
 
-            theGame.StartGame();
+            //theGame.StartGame();
 
             while (theGame.getPlaying() == true)
             {
-                theGame.checkIfValid(Console.ReadLine());
+                theGame.checkIfValid(Console.ReadLine().ToUpper());
             }
         }
     }
@@ -25,13 +26,12 @@ namespace TextBasedAdventureGame
     public class Game
     {
         bool m_Playing = true;
-        Location location = new Location();
-        Inventory inventory = new Inventory();
+        Location m_Location = new Location();
 
         public void reset()
         {
-            location.reset();
-            inventory.reset();
+            m_Playing = true;
+            m_Location.reset();
         }
 
         private void setPlaying(bool playing)
@@ -46,7 +46,17 @@ namespace TextBasedAdventureGame
 
         public void checkIfValid(string toCheck)
         {
-            location.whereTo(toCheck);
+            if (toCheck == "EXIT")
+            {
+                setPlaying(false);
+            }
+
+            if (toCheck == "RESET")
+            {
+                reset();
+            }
+
+            m_Location.whereTo(toCheck);
         }
 
         public void StartGame()
@@ -109,12 +119,13 @@ namespace TextBasedAdventureGame
     public class Location
     {
         string m_Location = string.Empty;
-        Inventory inventory = new Inventory();
+        Inventory.Inventory inventory = new Inventory.Inventory();
         bool lookedAround = false;
 
         public void reset()
         {
-
+            m_Location = string.Empty;
+            inventory.reset();
         }
 
         public void setLocation(string location)
@@ -136,16 +147,20 @@ namespace TextBasedAdventureGame
                     LookAround();
                     break;
 
-                case "TEST INVENTORY":
+                case "TEST INV":
                     inventory.testInventory();
                     break;
 
-                case "TEST INVENTORY REMOVE":
+                case "TEST INV R":
                     inventory.testInventoryRemoval();
                     break;
 
                 case "INVENTORY":
                     inventory.printInventory();
+                    break;
+
+                case "INV R":
+                    inventory.removeFromInventory(Console.ReadLine());
                     break;
 
                 case "MILL":
@@ -629,93 +644,6 @@ namespace TextBasedAdventureGame
             System.Threading.Thread.Sleep(3000);
             Console.Clear();
             reset();
-        }
-    }
-
-    public class Inventory
-    {
-        Hashtable inventory = new Hashtable();
-        string inventoryItem = string.Empty;
-        int inventoryKey = 0;
-
-        public void reset()
-        {
-
-        }
-
-        public void printInventory()
-        {
-            Console.WriteLine("INVENTORY");
-            foreach (string inventoryitem in inventory.Keys)
-            {
-                Console.WriteLine(inventoryitem.ToUpper());
-            }
-        }
-
-        public void testInventory()
-        {
-            for ( ; inventoryKey < 3; inventoryKey++)
-            {
-                inventory.Add("Item " + inventoryKey, inventoryKey);
-            }
-        }
-
-        public void testInventoryRemoval()
-        {
-            for ( int i = 0; i < inventoryKey; i++)
-            {
-                inventory.Remove("Item " + i);
-            }
-
-            inventoryKey = 0;
-        }
-
-        public void addToInventory(string item)
-        {
-            if (inventoryKey >= 3)
-            {
-                inventoryFull(item);
-            }
-            else
-            {
-                inventory.Add(item, inventoryKey);
-                inventoryKey++;
-            }
-        }
-
-        public Hashtable getInventory()
-        {
-            return inventory;
-        }
-
-        public void inventoryFull(string itemToGet)
-        {
-            Console.WriteLine("Your inventory is full. You'll have to drop an item to pick up that " + itemToGet + ".");
-            foreach (DictionaryEntry inventoryitem in inventory)
-            {
-                Console.WriteLine(inventoryitem.Value as string);
-            }
-
-            string thingToDrop = Console.ReadLine();
-
-            foreach (string inventoryitem in inventory)
-            {
-                if (inventoryitem == thingToDrop)
-                {
-                    inventory.Remove(thingToDrop);
-
-                }
-
-                else
-                {
-                    continue;
-                }
-            }
-        }
-
-        public void removeFromInventory(string itemToRemove)
-        {
-            inventory.Remove(itemToRemove);
         }
     }
 }
