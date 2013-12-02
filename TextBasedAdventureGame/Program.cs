@@ -46,12 +46,14 @@ namespace TextBasedAdventureGame
 
                 string description = string.Empty;
                 List<string> locGoesTo = new List<string>();
+                List<string> items = new List<string>();
 
                 string locName = string.Empty;
 
                 bool nameGet = false;
                 bool descGet = false;
                 bool goToGet = false;
+                bool itemGet = false;
 
                 #region "Building the location list"
                 foreach (char c in readText)
@@ -84,22 +86,18 @@ namespace TextBasedAdventureGame
                             continue;
                         }
 
+                        else if (itemGet == false)
+                        {
+                            itemGet = true;
+                            items.Add(stringBuilder.ToString());
+                            stringBuilder.Clear();
+                            continue;
+                        }
+
                         else
                         {
                             continue;
                         }
-                    }
-
-                    else if (nameGet == false)
-                    {
-                        stringBuilder.Append(c);
-                        continue;
-                    }
-
-                    else if (descGet == false)
-                    {
-                        stringBuilder.Append(c);
-                        continue;
                     }
 
                     else
@@ -109,7 +107,7 @@ namespace TextBasedAdventureGame
                 }
                 #endregion
 
-                LocationTesting locFile = new LocationTesting(locName, locGoesTo, description);
+                LocationTesting locFile = new LocationTesting(locName, locGoesTo, description, items);
                 locList.Add(locFile);
             }
         }
@@ -128,8 +126,10 @@ namespace TextBasedAdventureGame
         {
             bool goToWriting = true;
             bool descWriting = true;
+            bool itemWriting = true;
             string description = string.Empty;
             List<string> locGoesTo = new List<string>();
+            List<string> items = new List<string>();
 
             while(goToWriting == true)
             {
@@ -147,24 +147,43 @@ namespace TextBasedAdventureGame
                 if(Console.ReadLine().ToUpper() == "YES") descWriting = false;
             }
 
-            LocationTesting locationClass = new LocationTesting(locName, locGoesTo, description);
+            while (itemWriting == true)
+            {
+                Console.WriteLine("Wat items are here?\n");
+                items.Add(Console.ReadLine());
+                Console.WriteLine("Is that all?");
+                if (Console.ReadLine().ToUpper() == "YES") itemWriting = false;
+            }
+
+            LocationTesting locationClass = new LocationTesting(locName, locGoesTo, description, items);
         }
 
         public void checkIfValid(string toCheck)
         {
+            //string gotIt = string.Emp
+            //ty;
+
             if (toCheck == "EXIT")
             {
                 setPlaying(false);
+                return;
             }
 
             if (toCheck == "RESET")
             {
                 reset();
+                return;
+            }
+
+            if (toCheck == "QTE")
+            {
+
             }
 
             if (toCheck == "LOCTEST")
             {
                 List<string> test = new List<string>();
+                List<string> itemTest = new List<string>();
                 string temp = string.Empty;
 
                 for (int i = 0; i < 5; i++)
@@ -172,12 +191,17 @@ namespace TextBasedAdventureGame
                     test.Add("Location" + i.ToString());
                 }
 
+                for (int i = 0; i < 8; i++)
+                {
+                    itemTest.Add("Item" + i.ToString());
+                }
+
                 for (int i = 0; i < 99; i++)
                 {
                     temp += i.ToString();
                 }
 
-                LocationTesting locTest = new LocationTesting("FIELDTEST", test, temp);
+                LocationTesting locTest = new LocationTesting("FIELDTEST", test, temp, itemTest);
                 locList.Add(locTest);
             }
 
@@ -193,10 +217,23 @@ namespace TextBasedAdventureGame
                         return;
                     }
                 }
+            }
 
-                newLocation(toCheck);
+            foreach (LocationTesting location in locList)
+            {
+                if (location.getLocation() == toCheck)
+                {
+                    location.LocationReading();
+                }
 
-                m_Location.whereTo(toCheck);
+                foreach (string potentialLocation in location.m_GoTo)
+                {
+                    if (potentialLocation == toCheck)
+                    {
+                        location.LocationReading();
+                        return;
+                    }
+                }
             }
         }
 
@@ -790,8 +827,9 @@ namespace TextBasedAdventureGame
 
     public class LocationTesting
     {
-        string path = "C:\\C#Temp\\";
-        List<string> m_GoTo = new List<string>();
+        string path = @"C:\C#Temp\";
+        public List<string> m_GoTo = new List<string>();
+        List<string> m_Items = new List<string>();
         string m_Location = string.Empty;
         string m_Description = string.Empty;
 
@@ -800,11 +838,12 @@ namespace TextBasedAdventureGame
             return m_Location;
         }
 
-        public LocationTesting(string location, List<string> canGoTo, string description)
+        public LocationTesting(string location, List<string> canGoTo, string description, List<string> items)
         {
             m_Location = location;
             m_GoTo = canGoTo;
             m_Description = description;
+            m_Items = items;
             Save();
         }
 
@@ -815,8 +854,9 @@ namespace TextBasedAdventureGame
             if (!File.Exists(filePath))
             {
                 // Create a file to write to. 
-                string toWrite = string.Join(",", m_GoTo);
-                string createText = m_Location + "|" + m_Description + "|" + toWrite + "|";
+                string toWrite = string.Join(", ", m_GoTo);
+                string itemWrite = string.Join(", ", m_Items);
+                string createText = m_Location + "|" + m_Description + "|" + toWrite + "|" + itemWrite + "|";
                 File.WriteAllText(filePath, createText);
             }
 
@@ -829,9 +869,12 @@ namespace TextBasedAdventureGame
         public void LocationReading()
         {
             string goTo = string.Join("\n\t", m_GoTo);
+            string items = string.Join("\n\t", m_Items);
+
             Console.WriteLine("The location is: " + m_Location);
             Console.WriteLine("\nYou can go to: " + goTo);
             Console.WriteLine("\nThe location looks: " + m_Description);
+            Console.WriteLine("\nThe items here are: " + items);
         }
     }
 }
