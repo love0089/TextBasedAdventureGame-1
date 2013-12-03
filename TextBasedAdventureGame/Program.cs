@@ -177,7 +177,8 @@ namespace TextBasedAdventureGame
 
             if (toCheck == "QTE")
             {
-
+                //StartGame();
+                //m_Location.whereTo(Console.ReadLine());
             }
 
             if (toCheck == "LOCTEST")
@@ -532,7 +533,9 @@ namespace TextBasedAdventureGame
                 }
             }
         }
-
+        /// <summary>
+        /// ////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
         private void Mill()
         {
             Console.Clear();
@@ -543,12 +546,87 @@ namespace TextBasedAdventureGame
             Console.WriteLine("a loud BANG! Dust fills the air, but settles quickly. There is some old ");
             Console.WriteLine("equipment scattered about, and some remains of animals. There is an intact ");
             Console.WriteLine("door that leads to the BASEMENT to your left and a CHEST to your right.\n");
-            Console.WriteLine("What do you choose to do?");
-            Console.WriteLine("Go to the FIELD.");
-            Console.WriteLine("Go to the BASEMENT.");
-            Console.WriteLine("Open the CHEST.");
-            Console.WriteLine("Look around.");
-            Console.WriteLine("Check Inventory.");
+
+            bool inMill = true;
+
+            while (inMill == true)
+            {
+
+                Console.WriteLine("What do you choose to do?");
+                Console.WriteLine("Go to the FIELD.");
+                Console.WriteLine("Go to the BASEMENT.");
+                Console.WriteLine("Open the CHEST.");
+                Console.WriteLine("Look around.");
+                Console.WriteLine("Check Inventory.");
+
+                string input = Console.ReadLine();
+                switch (input.ToUpper())
+                {
+                    case "FIELD":
+                    case "GO TO FIELD":
+                        FieldOfShit();
+                        break;
+
+                    case "BASEMENT":
+                    case "GO TO BASEMENT":
+                        Basement();
+                        break;
+
+                    case "CHEST":
+                    case "OPEN CHEST":
+                        {
+                            Console.Clear();
+                            Console.WriteLine("You open the Chest and a MANEATER comes out and tries to eat you! \nYou have seconds left what do you do?\n");
+                            bool free = false;
+                            int success = 0;
+                            int failure = 0;
+
+                            while (free != true)
+                            {
+                                string action = Console.ReadLine();
+                                if (action.ToUpper() == "STRUGGLE")
+                                {
+                                    Console.WriteLine("You struggle to get free, the MANEATER weakens!");
+                                    success++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The MANEATER continues trying to eat you!");
+                                    failure++;
+                                }
+
+                                if (success >= 7)
+                                {
+                                    Console.WriteLine("SUCCESS! You manage to get free of the MANEATER and kill it!");
+                                    free = true;
+                                    // ADD item to be picked up/added to inventory (maybe)
+                                }
+                                else if (failure >= 5)
+                                {
+                                    Console.WriteLine("The MANEATER has eaten you, you are dead.");
+                                    gameOver();
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
+                    case "LOOK AROUND":
+                        {
+                            Console.WriteLine("You look around the MILL and see a door that leads to the BASEMENT \nand a CHEST to your left.\n");
+                        }
+                        break;
+
+                    case "CHECK INVENTORY":
+                        inventory.printInventory();
+                        break;
+
+                }
+
+            }
+
+
+
         }
 
         private void Forest()
@@ -576,13 +654,18 @@ namespace TextBasedAdventureGame
             Console.WriteLine("in front of you. All of a sudden you hear a deafening hiss, then big red ");
             Console.WriteLine("eyes appear in font of you. Out of complete shock you wet your pants, shriek ");
             Console.WriteLine("and run back up the stairs and slam the door behind you. You can hear the ");
-            Console.WriteLine("stairs cumble and fall apart behind the door. This calms you a little, but now ");
+            Console.WriteLine("stairs crumble and fall apart behind the door. This calms you a little, but now ");
             Console.WriteLine("you have wet pants and reek of urine.\n");
             Console.WriteLine("What do you choose to do?");
             Console.WriteLine("Go to the FIELD.");
             Console.WriteLine("Open the CHEST.");
             Console.WriteLine("Look around.");
             Console.WriteLine("Check Inventory.");
+
+
+
+
+
         }
 
         private void Town()
