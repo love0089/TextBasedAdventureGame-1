@@ -566,7 +566,22 @@ namespace TextBasedAdventureGame
                     case "LOOK AROUND":
                         {
                             Console.Clear();
-                            Console.WriteLine("You look around the MILL and see a door that leads to the BASEMENT \nand a CHEST to your left.\n");
+                            if (checkedBasement == false)
+                            {
+                                Console.WriteLine("You look around the MILL and see a door that leads to the BASEMENT \nand a CHEST to your left.\n");
+                                if (chestOpened == true)
+                                {
+                                    Console.WriteLine("The CHEST has already been opened.\n");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("You look around the MILL and a CHEST to your left.\n");
+                                if (chestOpened == true)
+                                {
+                                    Console.WriteLine("The CHEST has already been opened.\n");
+                                }
+                            }
                         }
                         break;
 
